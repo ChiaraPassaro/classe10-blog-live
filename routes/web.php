@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 // Route::get('/articles', 'ArticleController@index')->name('articles.index');
 Route::get('/articles/published', 'ArticleController@indexPublished')->name('articles.index.published');
-// Route::post('/photos', 'PhotosController@store')->name('photos.store');
+// Route::post('/photos/', 'PhotosController@store')->name('photos.store');
 
 Route::resource('articles', 'ArticleController');
 Route::resource('photos', 'PhotoController');

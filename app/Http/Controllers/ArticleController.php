@@ -7,7 +7,7 @@ use App\Article;
 use Illuminate\Support\Str;
 
 use Illuminate\Support\Facades\Validator;
-
+use Carbon\Carbon;
 
 
 class ArticleController extends Controller
@@ -55,8 +55,9 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        $data['slug'] = Str::slug($data['title'] , '-') . rand(1,100);
-
+        $now = Carbon::now()->format('Y-m-d-H-i-s');
+        
+        $data['slug'] = Str::slug($data['title'] , '-') . $now;
 
         $validator = Validator::make($data, [
             'title' => 'required|string|max:150',
@@ -65,7 +66,7 @@ class ArticleController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect('articles/create')
+            return redirect()->route('articles.create')
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -79,13 +80,20 @@ class ArticleController extends Controller
         // dd($request->all(););
         $article = new Article;
         // $article->title = $data['title'];
+        if(empty($data['img'])) {
+            unset($data['img']);
+            // $data['img'] = 'mio path';
+        }
+        // dd($data);
+
         $article->fill($data);
         $saved = $article->save();
+        
         if(!$saved) {
             dd('errore di salvataggio');
         }
         
-        return redirect()->route('articles.show', $article->id);
+        return redirect()->route('articles.show', $article->slug);
     }
 
     /**
