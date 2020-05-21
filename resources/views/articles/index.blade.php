@@ -14,12 +14,20 @@
           <thead>
             <th>Titolo</th>
             <th>Autore</th>
+            <th colspan="3">Azioni</th>
           </thead>
           <tbody>
             @foreach ($articles as $article)
                 <tr>
-                <td><a href="{{route('articles.show', $article->slug)}}">{{$article->title}}</a></td>
+                  <td>{{$article->title}}</td>
                   <td>Scritto da {{$article->author}}</td>
+                  <td><a href="{{route('articles.edit', $article->id)}}">Modifica</a></td>
+                  <td><a href="{{route('articles.show', $article->slug)}}">Visualizza</a></td>
+                <td><form action="{{route('articles.destroy', $article->id)}}" method="POST">
+                  @method('DELETE')
+                  @csrf
+                  <button type="submit">Elimina</button>
+                </form></td>
                 </tr>
             @endforeach
           </tbody>

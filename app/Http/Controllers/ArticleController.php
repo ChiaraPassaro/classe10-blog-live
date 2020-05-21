@@ -88,7 +88,7 @@ class ArticleController extends Controller
 
         $article->fill($data);
         $saved = $article->save();
-        
+
         if(!$saved) {
             dd('errore di salvataggio');
         }
@@ -140,12 +140,18 @@ class ArticleController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  Article $article
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Article $article)
     {
-        //
+       
+        if(empty($article)) {
+            abort('404');
+        }
+
+        return view('articles.edit', compact('article'));
+
     }
 
     /**
@@ -157,7 +163,39 @@ class ArticleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $article = Article::find($id);
+
+        if(empty($article)) {
+            abort('404');
+        }
+
+        $data = $request->all();
+        $now = Carbon::now()->format('Y-m-d-H-i-s');
+
+        $data['slug'] = Str::slug($data['title'], '-') . $now;
+
+        $validator = Validator::make($data, [
+            'title' => 'required|string|max:150',
+            'body' => 'required',
+            'author' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('articles.edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        if (empty($data['img'])) {
+            unset($data['img']);
+            // $data['img'] = 'mio path';
+        }
+
+        $article->fill($data);
+        $updated = $article->update();
+
+        return redirect()->route('articles.show', $article->slug);
+        
     }
 
     /**
@@ -168,6 +206,13 @@ class ArticleController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $article = Article::find($id);
+        if (empty($article)) {
+            abort('404');
+        }
+
+        $article->delete();
+
+        return redirect()->route('articles.index');
     }
 }
